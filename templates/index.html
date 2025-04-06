@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
+    <title>File Server</title>
+    <style>
+      /* --- Define CSS Variables (Custom Properties) --- */
+      :root {
+        /* Light Theme (Default) */
+        --bg-color: #f8f9fa;
+        --text-color: #212529;
+        --container-bg: #ffffff;
+        --container-shadow: rgba(0, 0, 0, 0.1);
+        --header-border-color: #e0e0e0;
+        --heading-color: #333;
+        --link-color: #0056b3;
+        --link-hover-color: #004494;
+        --border-color: #dee2e6;
+        --input-bg: #ffffff;
+        --input-border: #ced4da;
+        --input-text: #495057;
+        --button-primary-bg: #007bff;
+        --button-primary-hover-bg: #0056b3;
+        --button-primary-text: #ffffff;
+        --button-info-bg: #17a2b8;
+        --button-info-hover-bg: #117a8b;
+        --button-success-bg: #28a745;
+        --button-success-hover-bg: #218838;
+        --button-danger-bg: #dc3545;
+        --button-danger-hover-bg: #c82333;
+        --list-item-bg: #ffffff;
+        --list-item-hover-bg: #f1f1f1;
+        --form-section-bg: #eef7ff;
+        --form-section-border: #cce5ff;
+        --message-success-bg: #d4edda;
+        --message-success-text: #155724;
+        --message-success-border: #c3e6cb;
+        --message-error-bg: #f8d7da;
+        --message-error-text: #721c24;
+        --message-error-border: #f5c6cb;
+        --checkbox-accent-color: var(
+          --button-primary-bg
+        ); /* Use primary button color for checkbox */
+      }
+
+      /* --- Dark Theme Overrides --- */
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg-color: #121212; /* Very dark gray */
+          --text-color: #e0e0e0; /* Light gray text */
+          --container-bg: #1e1e1e; /* Darker container */
+          --container-shadow: rgba(
+            255,
+            255,
+            255,
+            0.08
+          ); /* Subtle white shadow */
+          --header-border-color: #333;
+          --heading-color: #f1f1f1;
+          --link-color: #58a6ff; /* Lighter blue */
+          --link-hover-color: #80bfff;
+          --border-color: #444; /* Darker borders */
+          --input-bg: #2c2c2c;
+          --input-border: #555;
+          --input-text: #e0e0e0;
+          --button-primary-bg: #0d6efd; /* Slightly different blue potentially */
+          --button-primary-hover-bg: #0a58ca;
+          --button-primary-text: #ffffff;
+          --button-info-bg: #0dcaf0;
+          --button-info-hover-bg: #31d2f2;
+          --button-success-bg: #198754;
+          --button-success-hover-bg: #157347;
+          --button-danger-bg: #dc3545;
+          --button-danger-hover-bg: #bb2d3b;
+          --list-item-bg: #2c2c2c;
+          --list-item-hover-bg: #383838;
+          --form-section-bg: #1c2a36; /* Darker blue/gray */
+          --form-section-border: #2a3f50;
+          --message-success-bg: #0f5132;
+          --message-success-text: #badbcc;
+          --message-success-border: #146c43;
+          --message-error-bg: #842029;
+          --message-error-text: #f5c2c7;
+          --message-error-border: #a93241;
+          --checkbox-accent-color: var(
+            --link-color
+          ); /* Use link color for checkbox */
+        }
+
+        /* Specific dark mode adjustments if needed */
+        input[type="file"] {
+          color-scheme: dark; /* Hint for file input styling */
+        }
+        /* Style the file input button in dark mode for Webkit */
+        input[type="file"]::-webkit-file-upload-button {
+          background-color: var(--input-border);
+          color: var(--text-color);
+          border: 1px solid var(--border-color);
+          padding: 8px 12px;
+          border-radius: 4px;
+          cursor: pointer;
+          margin-right: 10px;
+        }
+        input[type="file"]::-webkit-file-upload-button:hover {
+          background-color: var(--border-color);
+        }
+      }
+
+      /* --- Base Styles using Variables --- */
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.6;
+        margin: 0;
+        padding: 0;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        transition: background-color 0.3s, color 0.3s; /* Smooth transition */
+      }
+      .container {
+        max-width: 900px;
+        margin: 30px auto;
+        padding: 25px;
+        background-color: var(--container-bg);
+        box-shadow: 0 2px 15px var(--container-shadow);
+        border-radius: 8px;
+        border: 1px solid var(--border-color); /* Add subtle border */
+        transition: background-color 0.3s, border-color 0.3s;
+      }
+      header {
+        border-bottom: 1px solid var(--header-border-color);
+        padding-bottom: 15px;
+        margin-bottom: 25px;
+        text-align: center;
+        transition: border-color 0.3s;
+      }
+      header h1 {
+        margin: 0;
+        color: var(--link-color); /* Use link color for main header */
+      }
+      h2 {
+        color: var(--heading-color);
+        border-bottom: 1px solid var(--header-border-color); /* Use header border color */
+        padding-bottom: 5px;
+        margin-top: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        transition: color 0.3s, border-color 0.3s;
+      }
+      a {
+        /* Base link style */
+        color: var(--link-color);
+        text-decoration: none;
+        transition: color 0.2s;
+      }
+      a:hover {
+        color: var(--link-hover-color);
+        text-decoration: underline;
+      }
+
+      .upload-form,
+      .file-list-section {
+        margin-bottom: 30px;
+      }
+      .upload-form form {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        padding: 20px;
+        background-color: var(--form-section-bg);
+        border: 1px solid var(--form-section-border);
+        border-radius: 5px;
+        transition: background-color 0.3s, border-color 0.3s;
+      }
+      .upload-form label {
+        font-weight: bold;
+      }
+      .upload-form input[type="file"] {
+        padding: 10px;
+        border: 1px solid var(--input-border);
+        border-radius: 4px;
+        background-color: var(--input-bg);
+        color: var(--input-text); /* Ensure text is readable */
+        transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+      }
+      /* Style the file input button for light mode Webkit */
+      input[type="file"]::-webkit-file-upload-button {
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        border: 1px solid var(--input-border);
+        padding: 8px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-right: 10px;
+        transition: background-color 0.2s, color 0.2s;
+      }
+      input[type="file"]::-webkit-file-upload-button:hover {
+        background-color: var(--list-item-hover-bg);
+      }
+
+      .upload-form button {
+        padding: 12px 20px;
+        background-color: var(--button-primary-bg);
+        color: var(--button-primary-text);
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.2s ease-in-out;
+        align-self: flex-start;
+      }
+      .upload-form button:hover {
+        background-color: var(--button-primary-hover-bg);
+      }
+
+      /* File list section title area */
+      .file-list-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+        gap: 10px;
+      }
+      .file-list-header label {
+        font-weight: normal;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+      .file-list-header input[type="checkbox"],
+      .file-list input[type="checkbox"] {
+        transform: scale(1.3);
+        cursor: pointer;
+        accent-color: var(
+          --checkbox-accent-color
+        ); /* Modern way to color checkboxes */
+      }
+
+      /* File list specific styles */
+      .file-list {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 20px 0;
+      }
+      .file-list li {
+        display: flex;
+        align-items: center;
+        padding: 12px 15px;
+        border: 1px solid var(--border-color);
+        margin-bottom: 8px;
+        border-radius: 4px;
+        background-color: var(--list-item-bg);
+        transition: background-color 0.2s ease, border-color 0.3s;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+      .file-list li:hover {
+        background-color: var(--list-item-hover-bg);
+      }
+      .file-list .file-info {
+        display: flex;
+        align-items: center;
+        flex-grow: 1;
+        margin-right: 15px;
+        min-width: 200px;
+      }
+      /* Moved checkbox styling above */
+      .file-list .file-name {
+        word-break: break-all;
+        margin-left: 5px; /* Space between checkbox and label text */
+      }
+      .file-list .actions {
+        display: flex;
+        gap: 10px;
+        flex-shrink: 0;
+        margin-left: auto;
+      }
+      /* Action buttons/links common style */
+      .file-list .action-btn {
+        text-decoration: none;
+        padding: 6px 12px;
+        border-radius: 4px;
+        font-size: 14px;
+        cursor: pointer;
+        border: none;
+        color: var(--button-primary-text); /* Use primary button text color */
+        white-space: nowrap;
+        display: inline-block;
+        text-align: center;
+        transition: background-color 0.2s;
+      }
+      .file-list .action-btn:hover {
+        color: var(
+          --button-primary-text
+        ); /* Ensure text color remains on hover */
+        text-decoration: none; /* Remove underline from buttons */
+      }
+      /* Specific button colors */
+      .file-list a.view-btn {
+        background-color: var(--button-info-bg);
+      }
+      .file-list a.view-btn:hover {
+        background-color: var(--button-info-hover-bg);
+      }
+      .file-list a.download-btn {
+        background-color: var(--button-success-bg);
+      }
+      .file-list a.download-btn:hover {
+        background-color: var(--button-success-hover-bg);
+      }
+
+      /* Delete Selected Button */
+      .delete-selected-btn {
+        padding: 10px 18px;
+        background-color: var(--button-danger-bg);
+        color: var(--button-primary-text);
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 15px;
+        transition: background-color 0.2s ease-in-out;
+        margin-top: 10px;
+      }
+      .delete-selected-btn:hover {
+        background-color: var(--button-danger-hover-bg);
+      }
+
+      /* Message/Alert styling */
+      .message,
+      .error {
+        padding: 15px;
+        margin-bottom: 20px;
+        border-radius: 5px;
+        border: 1px solid; /* Border color set by specific class */
+        text-align: center;
+        transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+      }
+      .message {
+        /* Success */
+        background-color: var(--message-success-bg);
+        color: var(--message-success-text);
+        border-color: var(--message-success-border);
+      }
+      .error {
+        /* Error */
+        background-color: var(--message-error-bg);
+        color: var(--message-error-text);
+        border-color: var(--message-error-border);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <main>
+        {{if .Message}}
+        <div class="message">{{.Message}}</div>
+        {{end}} {{if .Error}}
+        <div class="error">{{.Error}}</div>
+        {{end}}
+
+        <section class="upload-form">
+          <h2>Upload New File</h2>
+          <form action="/upload" method="post" enctype="multipart/form-data">
+            <label for="file">Choose file (Max 10MB):</label>
+            <input type="file" id="file" name="file" required />
+            <button type="submit">Upload</button>
+          </form>
+        </section>
+
+        <section class="file-list-section">
+          <h2>Uploaded Files</h2>
+          {{if .Files}}
+          <form action="/delete-multiple" method="post" id="deleteForm">
+            <div class="file-list-header">
+              <label>
+                <input type="checkbox" id="selectAllCheckbox" />
+                Select All
+              </label>
+            </div>
+
+            <ul class="file-list">
+              {{range $index, $file := .Files}}
+              <li>
+                <div class="file-info">
+                  <input
+                    type="checkbox"
+                    name="filenames"
+                    value="{{$file}}"
+                    id="file-{{$index}}"
+                    class="file-checkbox"
+                  />
+                  <label class="file-name" for="file-{{$index}}"
+                    >{{$file}}</label
+                  >
+                </div>
+                <div class="actions">
+                  <a
+                    href="/files/{{$file}}"
+                    target="_blank"
+                    class="action-btn view-btn"
+                    >View</a
+                  >
+                  <a
+                    href="/files/{{$file}}"
+                    class="action-btn download-btn"
+                    download
+                    >Download</a
+                  >
+                </div>
+              </li>
+              {{end}}
+            </ul>
+            <button
+              type="submit"
+              class="delete-selected-btn"
+              onclick="return confirm('Are you sure you want to delete the selected files?');"
+            >
+              Delete Selected Files
+            </button>
+          </form>
+          {{else}}
+          <p>No files uploaded yet.</p>
+          {{end}}
+        </section>
+      </main>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const selectAllCheckbox = document.getElementById("selectAllCheckbox");
+        const fileCheckboxes = document.querySelectorAll(".file-checkbox");
+
+        if (selectAllCheckbox && fileCheckboxes.length > 0) {
+          selectAllCheckbox.addEventListener("change", function () {
+            const isChecked = selectAllCheckbox.checked;
+            fileCheckboxes.forEach((checkbox) => {
+              checkbox.checked = isChecked;
+            });
+          });
+
+          fileCheckboxes.forEach((checkbox) => {
+            checkbox.addEventListener("change", function () {
+              const allChecked = Array.from(fileCheckboxes).every(
+                (cb) => cb.checked
+              );
+              selectAllCheckbox.checked = allChecked;
+              if (
+                !allChecked &&
+                Array.from(fileCheckboxes).some((cb) => cb.checked)
+              ) {
+                selectAllCheckbox.indeterminate = true;
+              } else {
+                selectAllCheckbox.indeterminate = false;
+              }
+            });
+          });
+        }
+        if (selectAllCheckbox && fileCheckboxes.length > 0) {
+          const allChecked = Array.from(fileCheckboxes).every(
+            (cb) => cb.checked
+          );
+          const someChecked = Array.from(fileCheckboxes).some(
+            (cb) => cb.checked
+          );
+          selectAllCheckbox.checked = allChecked;
+          if (!allChecked && someChecked) {
+            selectAllCheckbox.indeterminate = true;
+          }
+        }
+      });
+    </script>
+  </body>
+</html>
