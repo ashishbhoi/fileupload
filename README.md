@@ -70,7 +70,7 @@ docker-compose up -d
 The server uses the following default configuration:
 
 - Port: 8080
-- Maximum file size: 10MB
+- Maximum file size: 50MB
 - Upload directory: /uploads
 
 ## Building from Source
