@@ -16,8 +16,8 @@ import (
 const (
 	uploadDir     = "./uploads" // Directory to store uploaded files
 	templateDir   = "./templates"
-	port          = "8080"     // Port to run the server on
-	maxUploadSize = 10 << 20 // 10 MB max upload size
+	port          = "8080"   // Port to run the server on
+	maxUploadSize = 50 << 20 // 10 MB max upload size
 )
 
 // Data structure to pass to the HTML template
@@ -231,13 +231,12 @@ func deleteMultipleHandler(w http.ResponseWriter, r *http.Request) {
 		if finalMessage != "" { // If some succeeded and some failed
 			finalMessage += " Some files could not be deleted."
 		} else { // If only errors occurred
-            finalMessage = "" // Clear any potential default success message
-        }
+			finalMessage = "" // Clear any potential default success message
+		}
 	} else if deletedCount == 0 && len(filenamesToDelete) > 0 {
-        // This case handles if all selected files resulted in errors (e.g., all were invalid names)
-        finalError = "No files were deleted. See details above." // Error message already contains details
-    }
-
+		// This case handles if all selected files resulted in errors (e.g., all were invalid names)
+		finalError = "No files were deleted. See details above." // Error message already contains details
+	}
 
 	// Redirect back to index page with messages
 	redirectURL := "/?"
@@ -250,13 +249,12 @@ func deleteMultipleHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		redirectURL += "error=" + url.QueryEscape(finalError)
 	}
-    if redirectURL == "/?" { // Handle case where somehow no message/error is set (e.g., empty selection bypassed initial check)
-        redirectURL = "/"
-    }
+	if redirectURL == "/?" { // Handle case where somehow no message/error is set (e.g., empty selection bypassed initial check)
+		redirectURL = "/"
+	}
 
 	http.Redirect(w, r, redirectURL, http.StatusSeeOther)
 }
-
 
 // deleteHandler handles single file deletion via POST request (Kept for potential direct API use, but UI uses multi-delete)
 func deleteHandler(w http.ResponseWriter, r *http.Request) {
@@ -292,11 +290,11 @@ func deleteHandler(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, redirectURL, http.StatusSeeOther)
 		return
 	} else if err != nil {
-        log.Printf("Error checking file status before delete: %v", err)
-        redirectURL := "/?error=" + url.QueryEscape("Error checking file status for: "+baseFilename)
+		log.Printf("Error checking file status before delete: %v", err)
+		redirectURL := "/?error=" + url.QueryEscape("Error checking file status for: "+baseFilename)
 		http.Redirect(w, r, redirectURL, http.StatusSeeOther)
-        return
-    }
+		return
+	}
 
 	// Delete the file
 	err := os.Remove(filePath)
